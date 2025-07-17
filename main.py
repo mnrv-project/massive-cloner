@@ -2,7 +2,7 @@
 import locale
 import os
 from fastapi import FastAPI
-from fastapi import RedirectResponse
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 pathenv = ".env"
