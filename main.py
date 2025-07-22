@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
 from fastapi import Request
 from pydantic import BaseModel
-from telethon.sessions import Session
+from telethon.sessions import StringSession
 
 
 app = FastAPI()
@@ -49,7 +49,7 @@ class tgapi(BaseModel):
     apiID: str
     apiHASH: str
 
-@app.post("/api/signup")
+@app.post("/api/signup/tgapis")
 async def api_signup(apiID: str = Form(...), apiHASH: str = Form(...)):
         with open('.env', 'x') as f:
             f.write(f"API_ID={apiID}\n")
@@ -60,4 +60,4 @@ class num(BaseModel):
     
 @app.post("/api/signup/tglogin/number")
 async def tglogin(num: int):
-    print('Chatisse da porra')
+    print(num)

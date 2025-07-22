@@ -10,9 +10,6 @@
 </head>
 <body>
     <script>
-        let apiID = null
-        let apiHASH = null
-        let num = null
         let form = document.getElementById("form")
         function frm(){
             let form1 = document.getElementById("form1")
@@ -23,14 +20,30 @@
         function cd(){
             let code = document.getElementById("code")
             code.style.display = "block"
+            hash()
         }
-        const datalogin1 = {
+        /*const datalogin1 = {
             telform: document.getElementById("num").value,
         }
         const codelogin = {
             code: document.getElementById("codelgn").value,
+        }*/
+        function hash(){
+            let numtel = parseInt(document.getElementById("num").value)
+            const data = JSON.stringify(numtel)
+
+            fetch('/api/signup/tglogin/number',{
+                method: 'POST',
+                body: data
+            })
         }
-        form.addEventListener('submit', function(event){
+
+
+
+
+
+
+        /*form.addEventListener('submit', function(event){
             event.preventDefault()
             const data = new FormData(form)
             
@@ -45,7 +58,7 @@
             .catch((error) => {
                 console.error('Error', erro)
             })
-        })
+        })*/
     </script>
     <form id="form">
         <div id="form1" style="display: block;">
@@ -67,7 +80,7 @@
             </button>
             <div id="code" style="display: none;">
                 <button type="button" onclick="frm()">Resend code</button>
-                <input type="number" code="codelgn">
+                <input type="number" id="codelgn">
                 <br>
                 <input type="button" value="Verify code" required>
             </div>
