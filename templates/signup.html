@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,57 +16,89 @@
             let form2 = document.getElementById("form2")
             form1.style.display = "none"
             form2.style.display = "block"
+            tapi()
         }
+        function tapi(){
+            let apiIDF = (document.getElementById("apiIDInput").value)
+            let apiHASHF = (document.getElementById("apiHASHInput").value)
+            const data = JSON.stringify({
+                apiID: apiIDF,
+                apiHASH: apiHASHF
+            })
+            fetch('/api/signup/tgapis', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: data
+            })
+        }
+        
         function cd(){
             let code = document.getElementById("code")
             code.style.display = "block"
             hash()
         }
-        /*const datalogin1 = {
-            telform: document.getElementById("num").value,
-        }
-        const codelogin = {
-            code: document.getElementById("codelgn").value,
-        }*/
+
         function hash(){
             let numtel = parseInt(document.getElementById("num").value)
-            const data = JSON.stringify(numtel)
+            const data = JSON.stringify({
+                telphon: numtel
+            })
 
             fetch('/api/signup/tglogin/number',{
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: data
             })
         }
-
-
-
-
-
-
-        /*form.addEventListener('submit', function(event){
-            event.preventDefault()
-            const data = new FormData(form)
-            
-            fetch('/api/signup/tglogin/number'),{
+        async function sendcode(){
+            let codeform = (document.getElementById("codelgn").value)
+            const data = JSON.stringify({
+                codef: codeform
+            })
+            fetch('/api/signup/tglogin/code',{
                 method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: data
+            })
+            const check = await response.json()
+            if(check.status === 'wrong_code'){
+                let warn = document.getElementById("wrngcode")
+                warn.style.display = 'block'
             }
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success', data)
+            if (check.status === 'password_needed'){
+                let psswd = document.getElementById("password")
+                psswd.style.display = 'block'
+            }
+            if (check.status !== 'wrong_code' || 'password_needed'){
+                window.alert(status)
+            }
+        }
+        async function loginpwd() {
+            let pwdform = (document.getElementById("pwdf").value)
+            let wrong = document.getElementById("wrngpwd")
+            wrong.style.display = 'none'
+            const data = JSON.stringify({
+                password: pwdform
             })
-            .catch((error) => {
-                console.error('Error', erro)
+            fetch("/api/signup/tglogin/pwd", {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: data
             })
-        })*/
+            const check = await response.JSON()
+            if(check.status === 'wrong_pwd'){
+                let wrong = document.getElementById("wrngpwd")
+                wrong.style.display = 'block'
+            }
+        }
     </script>
     <form id="form">
         <div id="form1" style="display: block;">
             <label>API ID:</label>
-            <input type="text" id="apiIDInput" required>
+            <input type="number" id="apiIDInput" aria-valuemax="999999" aria-valuemin="1" required>
             <br>
             <label>API HASH:</label>
-            <input type="text" id="apiHASH" required>
+            <input type="text" id="apiHASHInput" required>
             <br>
             <button type="button" onclick="frm()">Save</button>
             <br>
@@ -82,7 +114,16 @@
                 <button type="button" onclick="frm()">Resend code</button>
                 <input type="number" id="codelgn">
                 <br>
-                <input type="button" value="Verify code" required>
+                <input type="button" value="Verify code" onclick="sendcode()" required>
+                <br>
+                <h3 id="wrngcode" style="display: none;">Wrong code! Try again.</h3>
+            </div>
+            <div id="password" style="display: none;">
+                <input type="text" id="pwdf">
+                <br>
+                <input type="button" value="Sign In" onclick="loginpwd()">
+                <br>
+                <h3 id="wrngpwd" style="display: none;">Wrong Password</h3>
             </div>
         </div>
     </form>
