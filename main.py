@@ -14,6 +14,7 @@ from telethon.types import User
 from telethon import TelegramClient
 from fastapi.responses import JSONResponse
 from telethon.errors import rpcerrorlist
+import tracemalloc
 
 app = FastAPI()
 templates = Jinja2Templates(directory='templates')
@@ -25,6 +26,7 @@ tphone = None
 code = None
 pwd = None
 code_hash = None
+client = TelegramClient(StringSession(sstring), apiid, apihash)
 
 #Class
 class tgapi(BaseModel):
@@ -39,57 +41,21 @@ class codex(BaseModel):
 
 class pwd(BaseModel):
     password: str
-
-async def tgconnect():
-    global tphone, code, pwd, code_hash, sstring, apiid, apihash
-    client = TelegramClient(StringSession(sstring), apiid, apihash)
-    if tphone == None:
-        return JSONResponse({'message':'number_empty'})
-    await client.connect()
-    if pwd != None:
-        try:
-            await client.sign_in(tphone, code, pwd, phone_code_hash=code_hash)
-            sessionstr = client.session.save()
-            with open('.env', 'w') as f:
-                f.write(f"STRING_SESSION={sessionstr}\n")
-
-        except rpcerrorlist.PasswordHashInvalidError:
-            return JSONResponse({'status':'wrong_pwd'})
-    if code != None:
-        try:
-            await client.sign_in(tphone, code, phone_code_hash=code_hash)
-
-        except rpcerrorlist.SessionPasswordNeededError:
-            print('Need password')
-            return JSONResponse(content={'status':'password_needed'})
-        
-        except rpcerrorlist.PhoneCodeInvalidError:
-            print('Wrong code')
-            return JSONResponse(content={'status':'wrong_code'})
-        
-        except Exception as e:
-            await client.disconnect()
-            print(str(e))
-            return JSONResponse(content={'error':'{}'.format(str(e))})
-
-    else:
-        request = await client.send_code_request(tphone)
-        code_hash = request.phone_code_hash
         
 @app.get("/")
 async def default():
-    global sstring, apiid, apihash
+    global sstring, apiid, apihash, client
     
     if sstring and apiid and apihash:
         print('ok')
     else:
         return RedirectResponse("/signup")
-    
-    async with TelegramClient(StringSession(sstring), apiid, apihash) as client:
-         if await client.is_user_authorized():
-              return RedirectResponse("/home")
-         else:
-              return RedirectResponse("/signup")
+    await client.connect()
+    if await client.is_authorized():
+        return RedirectResponse("/home")
+    else:
+        await client.disconnect()
+        return RedirectResponse("/signup")
 
 @app.get("/home")
 async def home(request: Request):
@@ -108,32 +74,48 @@ async def signup(request: Request):
             "signup.html", {'request': request}
         )
 
-@app.post("/api/signup/tgapis")
-async def api_signup(payload: tgapi):
-        apiID = int(payload.apiID)
-        apiHASH = str(payload.apiHASH)
-        with open('.env', 'w') as f:
-            f.write(f"API_ID={apiID}\n")
-            f.write(f"API_HASH={apiHASH}\n")
-        return {'status':'ok'}
-
 @app.post("/api/signup/tglogin/number")
 async def tglogin(payload: num1):
-    global tphone
+    global tphone, code_hash, client
     tphone = payload.telphon
-
-    await tgconnect()
+    await client.connect()
+    request = await client.send_code_request(tphone)
+    code_hash = request.phone_code_hash
 
 @app.post("/api/signup/tglogin/code")
 async def codex(payload: codex):
-    global tphone, code, code_hash
+    global tphone, code, code_hash, client
     code = payload.codef
+    try:
+        await client.sign_in(tphone, code, phone_code_hash=code_hash)
+        sessionstr = client.session.save()
+        with open('.env', 'a') as f:
+            f.write('\nSTRING_SESSION={}'.format(sessionstr))
+        return RedirectResponse('/home')
 
-    await tgconnect()
+    except rpcerrorlist.SessionPasswordNeededError:
+        return JSONResponse(content={'status':'password_needed'})
+        
+    except rpcerrorlist.PhoneCodeInvalidError:
+        code = None
+        return JSONResponse(content={'status':'wrong_code'})
+    
+    except Exception as e:
+        print(f"Ocorreu um erro inesperado: {e}")
+        return JSONResponse(content={'error': str(e)})
 
 @app.post("/api/signup/tglogin/pwd")
 async def pwd(payload: pwd):
-    global tphone, code, pwd
+    global tphone, code, pwd, client
     pwd = payload.password
 
-    await tgconnect()
+    try:
+        await client.sign_in(password=pwd)
+        sessionstr = client.session.save()
+        with open('.env', 'a') as f:
+            f.write('\nSESSION_STRING={}'.format(sessionstr))
+        return RedirectResponse('/home')
+
+    except rpcerrorlist.PasswordHashInvalidError:
+        pwd = None
+        return JSONResponse({'status':'wrong_pwd'})
