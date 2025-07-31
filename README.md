@@ -15,7 +15,7 @@ A modern web application for cloning Telegram channels with an intuitive interfa
 
 ## Prerequisites
 
-- Python 3. or higher
+- Python 3.11 or higher
 - Telegram API credentials (API ID and API Hash)
 - A Telegram account
 
