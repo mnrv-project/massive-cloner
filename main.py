@@ -63,12 +63,6 @@ async def home(request: Request):
         "home.html", {"request": request}
     )
 
-@app.get("/cloning")
-async def cloning(request: Request):
-    return templates.TemplateResponse(
-        "cloning.html", {"request": request}
-    )
-
 @app.get("/signup")
 async def signup(request: Request):
     global sstring, apiid, apihash
