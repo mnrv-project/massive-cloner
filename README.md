@@ -1,157 +1,81 @@
-# TG Cloner
+# TG-Cloner
 
-A modern web application for cloning Telegram channels with an intuitive interface and real-time progress tracking.
+### Knowledge should not be a privilege, but a right.
 
-## Features
+This is a modified fork of **TG-Cloner CLI**, a powerful tool for the liberation and preservation of information. In a world where access to knowledge is often restricted by paywalls and artificial barriers, this script serves as a key to break those chains. It allows you to create an exact copy of any Telegram channel, ensuring that valuable content remains accessible to you, forever.
 
-- **User-friendly Interface**: Clean, modern dark-mode design
-- **Telegram Authentication**: Secure login with phone number and 2FA support
-- **Channel Selection**: Browse and select from your available channels
-- **Smart Cloning**: Clone to new channels or existing ones
-- **Real-time Progress**: Live status updates during cloning process
-- **Media Support**: Preserves text formatting, images, videos, and documents
-- **Rate Limiting**: Built-in delays to avoid Telegram restrictions
-- **Error Handling**: Robust error management with user feedback
+The modifications made by me krov.sh have transformed this script into a robust and intelligent tool, designed to make the digital archiving process as simple and efficient as possible.
 
-## Prerequisites
+### 🔥 Features
 
-- Python 3.11 or higher
-- Telegram API credentials (API ID and API Hash)
-- A Telegram account
+* **Perfect Cloning:** Copies all messages, media, documents, and files from one channel to another, maintaining the original structure.
 
-## Installation
+* **Fault-Tolerant:** If your connection drops or the script is interrupted, you can simply run it again to continue exactly where you left off.
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/DevHuney/tg-cloner
-   cd tg-cloner
-   ```
+* **Smart Management:** Keeps a record of already cloned channels and doesn't offer them again, saving you time.
 
-2. **Create a virtual environment**
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
+* **Interactive Menu:** Start new clones, continue pending ones, or bulk-leave original channels that have been cloned with a simple and direct menu.
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+* **Automatic Cleanup:** Offers the option to leave the original channels after completion, keeping your chat list organized.
 
-4. **Set up environment variables**
-   
-   Create a `.env` file in the project root:
-   ```env
-   API_ID=your_telegram_api_id
-   API_HASH=your_telegram_api_hash
-   SESSION_STRING=  # Will be generated during first login
-   ```
+* **Full Compatibility:** Analyzes progress files from older versions of the script and integrates them into the new system.
 
-   To get your API credentials:
-   - Go to [my.telegram.org](https://my.telegram.org)
-   - Log in with your phone number
-   - Go to "API Development Tools"
-   - Create a new application to get API_ID and API_HASH
+### 🚀 How to Use
 
-## Usage
+Follow these steps to start liberating knowledge.
 
-1. **Start the application**
-   ```bash
-   uvicorn main:app
-   ```
+#### Prerequisites
 
-2. **Open your browser**
-   
-   Navigate to `http://localhost:8000`
+* Python 3.x
 
-3. **First-time setup**
-   - Enter your phone number in international format (+1234567890)
-   - Enter the verification code sent to your Telegram
-   - If you have 2FA enabled, enter your password
+* A Telegram Account
 
-4. **Clone channels**
-   - Select a source channel from your list
-   - Choose to create a new channel or select an existing destination
-   - Click "Start Cloning" and monitor the real-time progress
+#### Step 1: Get the Script
 
-## How It Works
+Clone this repository to your local machine.
 
-1. **Authentication**: Uses Telethon library to authenticate with Telegram
-2. **Channel Discovery**: Fetches all channels you're a member of
-3. **Message Processing**: Iterates through messages in batches of 10
-4. **Content Preservation**: Maintains original formatting, media, and structure
-5. **Progress Tracking**: Updates status in real-time via JSON file
-6. **Rate Limiting**: Random delays (1-5 seconds) between messages to avoid restrictions
+   ´´´pip install -r requirements.txt´´
 
-## Security Features
+#### Step 3: Configuration (The Magic Trick)
 
-- Session strings are stored locally in `.env`
-- No passwords or sensitive data stored in plain text
-- Automatic session management and cleanup
-- Error handling prevents data leaks
+You need to provide your Telegram API credentials. Don't worry, they stay on your computer.
 
-## Technical Stack
+1. **Create the `.env` file:** In the same folder as the script, create a file named `.env`.
 
-- **Backend**: FastAPI, Python
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Telegram API**: Telethon library
-- **Styling**: Custom CSS with modern dark theme
-- **Real-time Updates**: Polling-based status checking
+2. **Get `API_ID` and `API_HASH`:**
 
-## File Structure
+   * Go to [my.telegram.org](https://my.telegram.org) and log in.
 
-```
-tg-cloner/
-├── main.py              # FastAPI application and core logic
-├── requirements.txt     # Python dependencies
-├── .env                # Environment variables (create this)
-├── .gitignore          # Git ignore rules
-├── templates/          # HTML templates
-│   ├── signup.html     # Authentication page
-│   ├── home.html       # Channel selection and cloning setup
-│   └── cloning.html    # Real-time progress page
-└── README.md           # This file
-```
+   * Navigate to "API development tools" and fill out the form.
 
-## API Endpoints
+   * You will receive your `api_id` and `api_hash`.
 
-- `GET /` - Root redirect to appropriate page
-- `GET /home` - Main application page
-- `GET /signup` - Authentication page
-- `GET /cloning` - Progress monitoring page
-- `POST /api/signup/tglogin/number` - Send verification code
-- `POST /api/signup/tglogin/code` - Verify code
-- `POST /api/signup/tglogin/pwd` - Two-factor authentication
-- `GET /api/tginfo` - Get user channels and cloning status
-- `POST /api/start` - Start cloning process
-- `GET /api/cloning_status` - Get real-time cloning progress
+3. **Fill the `.env` file:** Open the `.env` file and add the keys as follows:
+   ´´´
+   API_ID=1234567
+   API_HASH=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+   SESSION_STRING=generated_automatic
+   TG_LANG=EN # Use EN for English or PT for Portuguese
+   ´´´
 
-## Troubleshooting
+#### Step 4: Run the Liberator!
 
-**Common Issues:**
+With everything set up, just run the script.
 
-- **"User not authorized"**: Re-authenticate through `/signup`
-- **Rate limiting errors**: The app handles these automatically with delays
-- **Session expired**: Delete the `SESSION_STRING` from `.env` and re-login
-- **No channels showing**: Ensure you're a member of at least one channel
+´´´
+python3 main.py
+´´´
 
-**Development Mode:**
-```bash
-uvicorn main:app --reload --log-level debug
-```
+The first time, it will list all your channels and ask which ones you want to ignore. After that, the magic happens. The next times you run it, it will present an interactive menu for you to decide what to do.
 
-## Contributing
+### 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+The fight for free information is a collective effort. If you find a bug, have an idea to improve the tool, or want to add a new feature, your help is welcome.
 
-## License
+* **Report Issues:** Found a problem? Open an issue detailing what happened.
 
-This project is for educational purposes. Please respect Telegram's Terms of Service and use responsibly.
+* **Pull Requests:** Have an improvement? Fork the repository, make your changes, and submit a **Pull Request**. All contributions will be reviewed. Together, we make the tool more powerful.
 
-## Disclaimer
+### ⚠️ Disclaimer
 
-This tool is designed for legitimate use cases such as backing up your own channels or migrating content you own. Always ensure you have proper permissions before cloning any channel content.
+This tool is provided for **personal backup and information preservation** purposes. How you use it is your sole responsibility. Remember that knowledge shouldn't have owners, but the law doesn't always agree. Use it wisely.
