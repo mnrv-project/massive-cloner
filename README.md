@@ -34,7 +34,7 @@ Follow these steps to start liberating knowledge.
 
 Clone this repository to your local machine.
 
-   ´´´pip install -r requirements.txt´´
+   `pip install -r requirements.txt`
 
 #### Step 3: Configuration (The Magic Trick)
 
@@ -50,21 +50,19 @@ You need to provide your Telegram API credentials. Don't worry, they stay on you
 
    * You will receive your `api_id` and `api_hash`.
 
-3. **Fill the `.env` file:** Open the `.env` file and add the keys as follows:
-   ´´´
-   API_ID=1234567
-   API_HASH=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
-   SESSION_STRING=generated_automatic
-   TG_LANG=EN # Use EN for English or PT for Portuguese
-   ´´´
+3. **Fill the `.env` file:** Open the `.env` file and add the keys as follows: <br>
+   `API_ID=1234567` <br>
+   `API_HASH=a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4` <br>
+   `SESSION_STRING=generated_automatic` <br>
+   `TG_LANG=EN # Use EN for English or PT for Portuguese` <br>
 
 #### Step 4: Run the Liberator!
 
 With everything set up, just run the script.
 
-´´´
+`
 python3 main.py
-´´´
+`
 
 The first time, it will list all your channels and ask which ones you want to ignore. After that, the magic happens. The next times you run it, it will present an interactive menu for you to decide what to do.
 
