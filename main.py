@@ -15,12 +15,46 @@ from telethon.tl.functions.channels import CreateChannelRequest, EditPhotoReques
 from telethon.tl.types import ChatAdminRights
 from PIL import Image
 
+# --- Início da Função de Geração de Sessão ---
+async def generate_session():
+    """Gera e guarda a SESSION_STRING se não existir."""
+    if os.getenv('SESSION_STRING'):
+        return
+
+    print("Tentando carregar API_ID e API_HASH do ficheiro .env...")
+    api_id = os.getenv('API_ID')
+    api_hash = os.getenv('API_HASH')
+
+    if not api_id or not api_hash:
+        print("\nAVISO: API_ID ou API_HASH não encontrados no ficheiro .env.")
+        print("Por favor, aceda a my.telegram.org para obter as suas credenciais.")
+        api_id = input("Digite o seu API_ID: ")
+        api_hash = input("Digite o seu API_HASH: ")
+
+    try:
+        async with TelegramClient(StringSession(), int(api_id), api_hash) as client:
+            session_string = client.session.save()
+            with open('.env', 'a') as f:
+                f.write(f"\nSESSION_STRING={session_string}\n")
+            print("\n[SUCESSO] SESSION_STRING gerada e guardada no ficheiro .env.")
+            print("Por favor, execute o script novamente para iniciar o processo de clonagem.")
+    except Exception as e:
+        print(f"\n[ERRO] Não foi possível gerar a sessão: {e}")
+        print("Verifique se o seu API_ID e API_HASH estão corretos.")
+    
+    sys.exit() # Sai após a geração da sessão para que o utilizador possa reiniciar
+
+# --- Configurações Principais ---
 logging.getLogger('telethon').setLevel(logging.ERROR)
 TEMP_DIR = ".temp"
 os.makedirs(TEMP_DIR, exist_ok=True)
 load_dotenv()
 
-# Configuração de idioma. Defina TG_LANG=PT ou TG_LANG=EN em seu arquivo .env para forçar um idioma.
+# Verifica se é necessário gerar a sessão antes de continuar
+if not os.getenv('SESSION_STRING'):
+    asyncio.run(generate_session())
+
+# --- O resto do script original ---
 env_lang = os.getenv('TG_LANG', '').upper()
 if env_lang in ['PT', 'EN']:
     LANG = env_lang
@@ -257,13 +291,10 @@ async def main():
 
     cloned_originals_data = load_json_file(CLONED_ORIGINALS_FILE)
     
-    # Normaliza os IDs no 'originals.json' para compatibilidade com versões antigas
     temp_normalized_data = {}
     for cid_str, info in cloned_originals_data.items():
         cid_int = int(cid_str)
-        # Se o ID for positivo, assume-se que é um ID de canal privado antigo sem o prefixo
         if cid_int > 0:
-            # Reconstrói o ID completo que a API do Telegram usa
             normalized_key = str(int(f"-100{cid_int}"))
         else:
             normalized_key = cid_str
@@ -419,4 +450,3 @@ async def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-
